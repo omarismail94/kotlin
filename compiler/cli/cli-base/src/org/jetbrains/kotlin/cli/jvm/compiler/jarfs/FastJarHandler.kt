@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.RandomAccessFile
+import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 
 class FastJarHandler(val fileSystem: FastJarFileSystem, path: String) {
@@ -25,7 +26,8 @@ class FastJarHandler(val fileSystem: FastJarFileSystem, path: String) {
                 LargeDynamicMappedBuffer(
                     randomAccessFile.length(),
                     { offset, size -> randomAccessFile.channel.map(FileChannel.MapMode.READ_ONLY, offset, size) },
-                    fileSystem.unmapBuffer
+                    fileSystem.unmapBuffer,
+                    defaultByteOrder = ByteOrder.LITTLE_ENDIAN,
                 )
             try {
                 entries = try {

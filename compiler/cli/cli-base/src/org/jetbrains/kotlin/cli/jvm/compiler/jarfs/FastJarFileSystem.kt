@@ -14,6 +14,7 @@ import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 
@@ -31,7 +32,8 @@ class FastJarFileSystem private constructor(internal val unmapBuffer: MappedByte
                 val buffer = LargeDynamicMappedBuffer(
                     randomAccessFile.length(),
                     { offset, size -> randomAccessFile.channel.map(FileChannel.MapMode.READ_ONLY, offset, size) },
-                    unmapBuffer
+                    unmapBuffer,
+                    defaultByteOrder = ByteOrder.LITTLE_ENDIAN,
                 )
                 return Pair(randomAccessFile, buffer)
             }

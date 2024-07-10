@@ -15,11 +15,13 @@ import java.nio.MappedByteBuffer
  * @property dataSize The max size of the data to be mapped, usually the file size.
  * @property mapBuffer A callback to create a [MappedByteBuffer] given an offset and size.
  * @property unmapBuffer A callback to unmap given [MappedByteBuffer].
+ * @property defaultByteOrder default byte order for multibyte data extraction
  */
 internal class LargeDynamicMappedBuffer(
     private val dataSize: Long,
     private val mapBuffer: (Long, Long) -> MappedByteBuffer, // (offset, size) -> MappedByteBuffer
-    private val unmapBuffer: MappedByteBuffer.() -> Unit
+    private val unmapBuffer: MappedByteBuffer.() -> Unit,
+    private val defaultByteOrder: ByteOrder = ByteOrder.nativeOrder(),
 ) {
 
     private var currentMappedBuffer: MappedByteBuffer? = null
@@ -43,7 +45,9 @@ internal class LargeDynamicMappedBuffer(
                 currentEnd = start + Int.MAX_VALUE
             }
             unmap()
-            currentMappedBuffer = mapBuffer(currentStart, currentSize)
+            currentMappedBuffer = mapBuffer(currentStart, currentSize).also {
+                it.order(defaultByteOrder)
+            }
         }
         val buffer = currentMappedBuffer!!
         require(currentStart <= start && currentEnd >= end && start - currentStart < Int.MAX_VALUE)
