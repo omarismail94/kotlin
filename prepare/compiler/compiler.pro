@@ -92,6 +92,8 @@
 -keep class kotlin.Metadata
 -dontobfuscate
 
+-optimizeaggressively
+
 -keep class org.fusesource.** { *; }
 -keep class com.sun.jna.** { *; }
 
