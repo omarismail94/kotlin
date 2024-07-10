@@ -260,17 +260,6 @@ internal val syntheticAccessorGenerationPhase = makeIrModulePhase(
     prerequisite = setOf(inlineOnlyPrivateFunctionsPhase),
 )
 
-private val saveInlineFunctionsBeforeInlining = makeIrModulePhase(
-    ::SaveInlineFunctionsBeforeInlining,
-    name = "SaveInlineFunctionsBeforeInlining",
-    description = "Save inline function before inlining",
-    prerequisite = setOf(
-        sharedVariablesLoweringPhase,
-        localClassesInInlineLambdasPhase, localClassesExtractionFromInlineFunctionsPhase,
-        wrapInlineDeclarationsWithReifiedTypeParametersLowering
-    )
-)
-
 private val inlineAllFunctionsPhase = makeIrModulePhase(
     { context: JsIrBackendContext ->
         FunctionInlining(
@@ -281,7 +270,6 @@ private val inlineAllFunctionsPhase = makeIrModulePhase(
     },
     name = "InlineAllFunctions",
     description = "The second phase of inlining (inline all functions)",
-    prerequisite = setOf(saveInlineFunctionsBeforeInlining)
 )
 
 private val copyInlineFunctionBodyLoweringPhase = makeIrModulePhase(
@@ -866,7 +854,6 @@ fun getJsLowerings(
     // Note: The validation goes after both `inlineOnlyPrivateFunctionsPhase` and `syntheticAccessorGenerationPhase`
     // just because it goes so in Native.
     validateIrAfterInliningOnlyPrivateFunctions.takeIf { configuration.getBoolean(KlibConfigurationKeys.EXPERIMENTAL_DOUBLE_INLINING) },
-    saveInlineFunctionsBeforeInlining,
     inlineAllFunctionsPhase,
     validateIrAfterInliningAllFunctions,
     // END: Common Native/JS prefix.
